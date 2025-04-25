@@ -1191,11 +1191,38 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
          << ", from_frame = " << this->from_index
          << ", to_frame = "   << this->to_index
          << ", uint8_2 = "    << static_cast<unsigned>(this->uint8_2)
-         << ", uint8_3 = "    << static_cast<unsigned>(this->uint8_3) << std::hex
-         << ", uint16_0 = 0x" << this->uint16_0 << std::dec
-         << ", uint32_0 = "   << this->uint32_0;
+         << ", uint8_3 = "    << static_cast<unsigned>(this->uint8_3)
+         << ", uint16_0 = 0x" << this->uint16_0 // This might be a bitfield
+         << ", uint32_0 = "   << this->uint32_0; // this might be a duration
 
     return form.str();
+}
+
+void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta) {
+    const auto duration = std::chrono::seconds( std::abs(static_cast<int>(this->animation_track.to_index) - static_cast<int>(this->animation_track.from_index)) );
+
+    if(this->animation_track.from_index == this->animation_track.to_index) {
+        this->current_time = std::chrono::microseconds(0);
+    }
+    else {
+        this->current_time += 10 * delta;
+
+        if(this->current_time > duration)
+            this->current_time = this->current_time % duration;
+    }
+}
+
+uint16_t Data::Mission::ObjResource::AnimationTrackState::getCurrentFrame() const {
+    if(this->animation_track.to_index == this->animation_track.from_index)
+        return this->animation_track.to_index;
+
+    const uint16_t duration = std::abs(static_cast<int>(this->animation_track.to_index) - static_cast<int>(this->animation_track.from_index));
+    const uint16_t    place = std::chrono::duration_cast<std::chrono::seconds>( this->current_time ).count();
+
+    if(this->animation_track.to_index > this->animation_track.from_index)
+        return this->animation_track.from_index + place;
+    else
+        return this->animation_track.from_index - place;
 }
         
 const std::filesystem::path Data::Mission::ObjResource::FILE_EXTENSION = "cobj";

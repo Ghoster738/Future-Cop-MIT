@@ -278,6 +278,14 @@ public:
 
         std::string getString() const;
     };
+    struct AnimationTrackState {
+        AnimationTrack            animation_track;
+        std::chrono::microseconds current_time;
+
+        void advance(std::chrono::microseconds delta);
+
+        uint16_t getCurrentFrame() const;
+    };
 private:
     struct {
         unsigned has_skeleton:     1;
