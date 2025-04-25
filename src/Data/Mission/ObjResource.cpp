@@ -1179,6 +1179,24 @@ std::string Data::Mission::ObjResource::Bone::getString() const {
 
     return form.str();
 }
+
+
+std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
+    std::stringstream form;
+
+    form <<   "uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
+         << ", speed = "      << static_cast<unsigned>(this->speed)
+         << ", uint8_1 = "    << static_cast<unsigned>(this->uint8_1)
+         << ", skip_frame = " << static_cast<unsigned>(this->skip_frame)
+         << ", from_frame = " << this->from_index
+         << ", to_frame = "   << this->to_index
+         << ", uint8_2 = "    << static_cast<unsigned>(this->uint8_2)
+         << ", uint8_3 = "    << static_cast<unsigned>(this->uint8_3) << std::hex
+         << ", uint16_0 = 0x" << this->uint16_0 << std::dec
+         << ", uint32_0 = "   << this->uint32_0;
+
+    return form.str();
+}
         
 const std::filesystem::path Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
 const uint32_t              Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
@@ -2007,17 +2025,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     this->animation_tracks.push_back(track);
 
-                    debug_log.output << std::dec << i
-                        << ", uint8_0 = "    << static_cast<unsigned>(track.uint8_0)
-                        << ", speed = "      << static_cast<unsigned>(track.speed)
-                        << ", uint8_1 = "    << static_cast<unsigned>(track.uint8_1)
-                        << ", skip_frame = " << static_cast<unsigned>(track.skip_frame)
-                        << ", from_frame = " << track.from_index
-                        << ", to_frame = "   << track.to_index
-                        << ", uint8_2 = "    << static_cast<unsigned>(track.uint8_2)
-                        << ", uint8_3 = "    << static_cast<unsigned>(track.uint8_3)
-                        << ", uint16_0 = "   << track.uint16_0
-                        << ", uint32_0 = "   << track.uint32_0 << "\n";
+                    error_log.output << std::dec << i << ":" << track.getString() << "\n";
 
                     // from_frame and to_frame can be (from_frame == to_frame), (from_frame > to_frame), and (from_frame < to_frame)
                 }
