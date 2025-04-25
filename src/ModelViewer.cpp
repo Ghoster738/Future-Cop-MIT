@@ -290,7 +290,6 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
     const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
 
     text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::LEFT );
-
     text_2d_buffer_r->setFont( this->font );
     text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
     text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
@@ -308,6 +307,13 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
     text_2d_buffer_r->print( LEFT_TEXT[1] );
 
     text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::RIGHT );
+
+    if(!this->obj_vector.empty() && !this->obj_vector.at( this->cobj_index )->getAnimationTracks().empty()) {
+        text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 0 ) );
+        text_2d_buffer_r->print( "Animation Track "
+            + std::to_string(this->track_index) + "/" + std::to_string(this->obj_vector.at( this->cobj_index )->getAnimationTracks().size()) );
+    }
+
     text_2d_buffer_r->setPosition( glm::vec2( right_text_placement ) );
     text_2d_buffer_r->print( RIGHT_TEXT[0] );
     text_2d_buffer_r->setPosition( glm::vec2( right_text_placement + glm::u32vec2(0, this->font_height ) ) );
