@@ -1199,7 +1199,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
 }
 
 void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta) {
-    const auto duration = std::chrono::seconds( std::abs(static_cast<int>(this->animation_track.to_index) - static_cast<int>(this->animation_track.from_index)) );
+    const auto duration = std::chrono::seconds( 1 + std::abs(static_cast<int>(this->animation_track.to_index) - static_cast<int>(this->animation_track.from_index)) );
 
     if(this->animation_track.from_index == this->animation_track.to_index) {
         this->current_time = std::chrono::microseconds(0);
