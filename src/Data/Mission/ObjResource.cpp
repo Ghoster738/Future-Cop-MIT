@@ -1205,7 +1205,7 @@ void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::micro
         this->current_time = std::chrono::microseconds(0);
     }
     else {
-        this->current_time += 10 * delta;
+        this->current_time += this->animation_track.speed * delta;
 
         if(this->current_time > duration)
             this->current_time = this->current_time % duration;
