@@ -1180,12 +1180,46 @@ std::string Data::Mission::ObjResource::Bone::getString() const {
     return form.str();
 }
 
+const std::string& Data::Mission::ObjResource::AnimationTrack::typeToString( Data::Mission::ObjResource::AnimationTrack::Type type ) {
+    static const std::string NO_ANIMATION_STR = "NO_ANIMATION";
+    static const std::string  ANIMATION_0_STR = "ANIMATION_0";
+    static const std::string  ANIMATION_1_STR = "ANIMATION_1";
+    static const std::string    TRANSFORM_STR = "TRANSFORM";
+    static const std::string      INVALID_STR = "INVALID_TYPE";
+
+    switch(type) {
+        case NO_ANIMATION:
+            return NO_ANIMATION_STR;
+        case ANIMATION_0:
+            return ANIMATION_0_STR;
+        case ANIMATION_1:
+            return ANIMATION_1_STR;
+        case TRANSFORM:
+            return TRANSFORM_STR;
+        default:
+            return INVALID_STR;
+    }
+}
+
+Data::Mission::ObjResource::AnimationTrack::Type Data::Mission::ObjResource::AnimationTrack::byteToType( uint8_t byte ) {
+    switch(byte) {
+        default:
+        case 0:
+            return NO_ANIMATION;
+        case 1:
+            return ANIMATION_0;
+        case 2:
+            return ANIMATION_1;
+        case 3:
+            return TRANSFORM;
+    }
+}
 
 std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
     std::stringstream form;
 
     form <<   "uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
-         << ", type = "       << static_cast<unsigned>(this->type)
+         << ", type = "       << typeToString(getType())
          << ", uint8_1 = "    << static_cast<unsigned>(this->uint8_1)
          << ", skip_frame = " << static_cast<unsigned>(this->skip_frame)
          << ", from_frame = " << this->from_index
@@ -2042,7 +2076,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
                     track.uint8_0    = readerAnmD.readU8();
-                    track.type       = readerAnmD.readU8(); // 0 means no animations. 1 and 2 means animations can play. 3 is only used for X1A's head and legs transformation track. They both can be played in reverse. 0
+                    track.type       = readerAnmD.readU8();
                     track.uint8_1    = readerAnmD.readU8();
                     track.skip_frame = readerAnmD.readU8(); // Wild guess.
                     track.from_index = readerAnmD.readU16( settings.endian );

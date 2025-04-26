@@ -265,6 +265,13 @@ public:
         } graphics;
     };
     struct AnimationTrack {
+        enum Type {
+            NO_ANIMATION = 0, // animations do not play at all.
+            ANIMATION_0  = 1,
+            ANIMATION_1  = 2,
+            TRANSFORM    = 3  // is only used for X1A's head and legs transformation track. They both can be played in reverse.
+        };
+
         uint8_t     uint8_0;
         uint8_t        type;
         uint8_t     uint8_1;
@@ -275,6 +282,12 @@ public:
         uint8_t     uint8_3;
         uint16_t   uint16_0;
         uint32_t      speed;
+
+        static const std::string& typeToString( Type type );
+
+        static Type byteToType( uint8_t byte );
+
+        Type getType() const { return byteToType( this->type ); }
 
         std::string getString() const;
     };
