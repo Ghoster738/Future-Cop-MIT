@@ -274,8 +274,8 @@ public:
 
         uint8_t     uint8_0;
         uint8_t        type;
+        int8_t       int8_0;
         uint8_t     uint8_1;
-        uint8_t  skip_frame;
         uint16_t from_index;
         uint16_t   to_index;
         uint8_t     uint8_2;

@@ -1220,8 +1220,8 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
 
     form <<   "uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
          << ", type = "       << typeToString(getType())
+         << ", int8_0 = "     << static_cast<int>(this->int8_0)
          << ", uint8_1 = "    << static_cast<unsigned>(this->uint8_1)
-         << ", skip_frame = " << static_cast<unsigned>(this->skip_frame)
          << ", from_frame = " << this->from_index
          << ", to_frame = "   << this->to_index
          << ", uint8_2 = "    << static_cast<unsigned>(this->uint8_2)
@@ -2077,8 +2077,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
                     track.uint8_0    = readerAnmD.readU8();
                     track.type       = readerAnmD.readU8();
-                    track.uint8_1    = readerAnmD.readU8();
-                    track.skip_frame = readerAnmD.readU8(); // Wild guess.
+                    track.int8_0     = readerAnmD.readI8(); // 255(-1), 0, 1, 2
+                    track.uint8_1    = readerAnmD.readU8(); // Might be indexes.
                     track.from_index = readerAnmD.readU16( settings.endian );
                     track.to_index   = readerAnmD.readU16( settings.endian );
                     track.uint8_2    = readerAnmD.readU8();
@@ -2088,7 +2088,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     this->animation_tracks.push_back(track);
 
-                    error_log.output << std::dec << i << ": " << track.getString() << "\n";
+                    if(track.uint8_1 != 0)
+                        error_log.output << std::dec << i << ": " << track.getString() << "\n";
                 }
             }
             else
