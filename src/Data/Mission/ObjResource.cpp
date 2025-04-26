@@ -1185,7 +1185,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
     std::stringstream form;
 
     form <<   "uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
-         << ", speed = "      << static_cast<unsigned>(this->speed)
+         << ", un_enum = "      << static_cast<unsigned>(this->un_enum)
          << ", uint8_1 = "    << static_cast<unsigned>(this->uint8_1)
          << ", skip_frame = " << static_cast<unsigned>(this->skip_frame)
          << ", from_frame = " << this->from_index
@@ -2040,7 +2040,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
                     track.uint8_0    = readerAnmD.readU8();
-                    track.speed      = readerAnmD.readU8(); // The bigger the slower
+                    track.un_enum    = readerAnmD.readU8();
                     track.uint8_1    = readerAnmD.readU8();
                     track.skip_frame = readerAnmD.readU8(); // Wild guess.
                     track.from_index = readerAnmD.readU16( settings.endian );

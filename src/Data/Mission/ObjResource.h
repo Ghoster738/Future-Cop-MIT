@@ -266,7 +266,7 @@ public:
     };
     struct AnimationTrack {
         uint8_t     uint8_0;
-        uint8_t       speed;
+        uint8_t       un_enum;
         uint8_t     uint8_1;
         uint8_t  skip_frame;
         uint16_t from_index;
