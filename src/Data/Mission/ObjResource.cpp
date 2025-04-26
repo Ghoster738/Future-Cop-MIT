@@ -2089,8 +2089,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     this->animation_tracks.push_back(track);
 
                     error_log.output << std::dec << i << ": " << track.getString() << "\n";
-
-                    // from_frame and to_frame can be (from_frame == to_frame), (from_frame > to_frame), and (from_frame < to_frame)
                 }
             }
             else
