@@ -274,7 +274,7 @@ public:
         uint8_t     uint8_2;
         uint8_t     uint8_3;
         uint16_t   uint16_0;
-        uint32_t   uint32_0;
+        uint32_t      speed;
 
         std::string getString() const;
     };

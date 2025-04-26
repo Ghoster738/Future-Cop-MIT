@@ -1185,7 +1185,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
     std::stringstream form;
 
     form <<   "uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
-         << ", un_enum = "      << static_cast<unsigned>(this->un_enum)
+         << ", un_enum = "    << static_cast<unsigned>(this->un_enum)
          << ", uint8_1 = "    << static_cast<unsigned>(this->uint8_1)
          << ", skip_frame = " << static_cast<unsigned>(this->skip_frame)
          << ", from_frame = " << this->from_index
@@ -1193,7 +1193,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
          << ", uint8_2 = "    << static_cast<unsigned>(this->uint8_2)
          << ", uint8_3 = "    << static_cast<unsigned>(this->uint8_3)
          << ", uint16_0 = "   << this->uint16_0 // This might be a bitfield
-         << ", uint32_0 = "   << this->uint32_0; // this might be a duration
+         << ", speed = "      << this->speed;
 
     return form.str();
 }
@@ -2048,7 +2048,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     track.uint8_2    = readerAnmD.readU8();
                     track.uint8_3    = readerAnmD.readU8();
                     track.uint16_0   = readerAnmD.readU16( settings.endian );
-                    track.uint32_0   = readerAnmD.readU32( settings.endian );
+                    track.speed      = readerAnmD.readU32( settings.endian );
 
                     this->animation_tracks.push_back(track);
 
