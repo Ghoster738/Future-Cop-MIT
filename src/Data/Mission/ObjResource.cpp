@@ -1185,7 +1185,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
     std::stringstream form;
 
     form <<   "uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
-         << ", un_enum = "    << static_cast<unsigned>(this->un_enum)
+         << ", type = "       << static_cast<unsigned>(this->type)
          << ", uint8_1 = "    << static_cast<unsigned>(this->uint8_1)
          << ", skip_frame = " << static_cast<unsigned>(this->skip_frame)
          << ", from_frame = " << this->from_index
@@ -2042,7 +2042,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
                     track.uint8_0    = readerAnmD.readU8();
-                    track.un_enum    = readerAnmD.readU8();
+                    track.type       = readerAnmD.readU8(); // 0 means no animations. 1 and 2 means animations can play. 3 is only used for X1A's head and legs transformation track. They both can be played in reverse. 0
                     track.uint8_1    = readerAnmD.readU8();
                     track.skip_frame = readerAnmD.readU8(); // Wild guess.
                     track.from_index = readerAnmD.readU16( settings.endian );
