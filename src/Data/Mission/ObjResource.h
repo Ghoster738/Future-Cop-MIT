@@ -272,16 +272,16 @@ public:
             TRANSFORM    = 3  // is only used for X1A's head and legs transformation track. They both can be played in reverse.
         };
 
-        uint8_t     uint8_0;
-        uint8_t        type;
-        int8_t       int8_0;
-        uint8_t     uint8_1;
-        uint16_t from_index;
-        uint16_t   to_index;
-        uint8_t     uint8_2;
-        uint8_t     uint8_3;
-        uint16_t   uint16_0;
-        uint32_t      speed;
+        uint8_t next_track_index;
+        uint8_t             type;
+        int8_t            int8_0;
+        uint8_t    track_0_index;
+        uint16_t      from_index;
+        uint16_t        to_index;
+        uint8_t    track_1_index;
+        uint8_t    track_2_index;
+        uint16_t        uint16_0;
+        uint32_t           speed;
 
         static const std::string& typeToString( Type type );
 

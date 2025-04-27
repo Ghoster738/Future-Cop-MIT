@@ -1218,16 +1218,16 @@ Data::Mission::ObjResource::AnimationTrack::Type Data::Mission::ObjResource::Ani
 std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
     std::stringstream form;
 
-    form <<   "uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
-         << ", type = "       << typeToString(getType())
-         << ", int8_0 = "     << static_cast<int>(this->int8_0)
-         << ", uint8_1 = "    << static_cast<unsigned>(this->uint8_1)
-         << ", from_frame = " << this->from_index
-         << ", to_frame = "   << this->to_index
-         << ", uint8_2 = "    << static_cast<unsigned>(this->uint8_2)
-         << ", uint8_3 = "    << static_cast<unsigned>(this->uint8_3)
-         << ", uint16_0 = "   << this->uint16_0 // This might be a bitfield
-         << ", speed = "      << this->speed;
+    form <<   "next_track_index = " << static_cast<unsigned>(this->next_track_index)
+         << ", type = "             << typeToString(getType())
+         << ", int8_0 = "           << static_cast<int>(this->int8_0)
+         << ", track_0_index = "    << static_cast<unsigned>(this->track_0_index)
+         << ", from_frame = "       << this->from_index
+         << ", to_frame = "         << this->to_index
+         << ", track_1_index = "    << static_cast<unsigned>(this->track_1_index)
+         << ", track_2_index = "    << static_cast<unsigned>(this->track_2_index)
+         << ", uint16_0 = "         << this->uint16_0 // This might be a bitfield
+         << ", speed = "            << this->speed;
 
     return form.str();
 }
@@ -2075,21 +2075,20 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 AnimationTrack track;
 
                 for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
-                    track.uint8_0    = readerAnmD.readU8();
-                    track.type       = readerAnmD.readU8();
-                    track.int8_0     = readerAnmD.readI8(); // 255(-1), 0, 1, 2
-                    track.uint8_1    = readerAnmD.readU8(); // Might be indexes.
-                    track.from_index = readerAnmD.readU16( settings.endian );
-                    track.to_index   = readerAnmD.readU16( settings.endian );
-                    track.uint8_2    = readerAnmD.readU8();
-                    track.uint8_3    = readerAnmD.readU8();
-                    track.uint16_0   = readerAnmD.readU16( settings.endian );
-                    track.speed      = readerAnmD.readU32( settings.endian );
+                    track.next_track_index = readerAnmD.readU8();
+                    track.type             = readerAnmD.readU8();
+                    track.int8_0           = readerAnmD.readI8(); // 255(-1), 0, 1, 2
+                    track.track_0_index    = readerAnmD.readU8();
+                    track.from_index       = readerAnmD.readU16( settings.endian );
+                    track.to_index         = readerAnmD.readU16( settings.endian );
+                    track.track_1_index    = readerAnmD.readU8();
+                    track.track_2_index    = readerAnmD.readU8();
+                    track.uint16_0         = readerAnmD.readU16( settings.endian );
+                    track.speed            = readerAnmD.readU32( settings.endian );
 
                     this->animation_tracks.push_back(track);
 
-                    if(track.uint8_1 != 0)
-                        error_log.output << std::dec << i << ": " << track.getString() << "\n";
+                    error_log.output << std::dec << i << ": " << track.getString() << "\n";
                 }
             }
             else
