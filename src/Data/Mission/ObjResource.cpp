@@ -1224,7 +1224,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
          << ", uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
          << ", from_frame = "       << this->from_index
          << ", to_frame = "         << this->to_index
-         << ", track_1_index = "    << static_cast<unsigned>(this->track_1_index)
+         << ", track_0_index = "    << static_cast<unsigned>(this->track_0_index)
          << ", track_2_index = "    << static_cast<unsigned>(this->track_2_index)
          << ", uint16_0 = "         << this->uint16_0 // This might be a bitfield
          << ", speed = "            << this->speed;
@@ -2081,7 +2081,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     track.uint8_0          = readerAnmD.readU8();
                     track.from_index       = readerAnmD.readU16( settings.endian );
                     track.to_index         = readerAnmD.readU16( settings.endian );
-                    track.track_1_index    = readerAnmD.readU8();
+                    track.track_0_index    = readerAnmD.readU8();
                     track.track_2_index    = readerAnmD.readU8();
                     track.uint16_0         = readerAnmD.readU16( settings.endian );
                     track.speed            = readerAnmD.readU32( settings.endian );
