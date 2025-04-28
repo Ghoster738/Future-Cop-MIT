@@ -279,7 +279,7 @@ public:
         uint16_t      from_index;
         uint16_t        to_index;
         uint8_t    track_0_index;
-        uint8_t    track_2_index;
+        uint8_t    track_1_index;
         uint16_t        uint16_0;
         uint32_t           speed;
 
