@@ -1221,7 +1221,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
     form <<   "next_track_index = " << static_cast<unsigned>(this->next_track_index)
          << ", type = "             << typeToString(getType())
          << ", int8_0 = "           << static_cast<int>(this->int8_0)
-         << ", track_0_index = "    << static_cast<unsigned>(this->track_0_index)
+         << ", uint8_0 = "    << static_cast<unsigned>(this->uint8_0)
          << ", from_frame = "       << this->from_index
          << ", to_frame = "         << this->to_index
          << ", track_1_index = "    << static_cast<unsigned>(this->track_1_index)
@@ -2078,7 +2078,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     track.next_track_index = readerAnmD.readU8();
                     track.type             = readerAnmD.readU8();
                     track.int8_0           = readerAnmD.readI8(); // 255(-1), 0, 1, 2
-                    track.track_0_index    = readerAnmD.readU8();
+                    track.uint8_0          = readerAnmD.readU8();
                     track.from_index       = readerAnmD.readU16( settings.endian );
                     track.to_index         = readerAnmD.readU16( settings.endian );
                     track.track_1_index    = readerAnmD.readU8();
