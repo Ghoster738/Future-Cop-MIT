@@ -1954,6 +1954,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         if(current_id_number > 0xFFFF)
                             id_beyond_ff_ff = true;
                     }
+
+                    if( reference_count > 256 ) {
+                        warning_log.output << "3DRF reference number on tag 0x" << std::hex << reference_tag << " has too many frames, " << std::dec << reference_count << ", the limit is about 256. The original Future Cop engine will most likely CRASH while attempting to render this model.\n";
+                    }
                 }
 
                 if(has_unnormalized_number) {
