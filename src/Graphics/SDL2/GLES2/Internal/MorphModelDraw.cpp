@@ -215,7 +215,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0 * vec4(ModelColor, 1.);\n"
     "   if( abs(_METADATA[0]) > 1.5 )\n"
-    "       in_color.rgb = mix(in_color.rgb, vec3(0.2, 0.2, 0.2), max(0., dot( NORMAL, LightDirection ) ));\n"
+    "       in_color.rgb = mix(in_color.rgb, vec3(0.2, 0.2, 0.2), max(0., dot( current_normal, LightDirection ) ));\n"
     "   MAKE_FULL_POSITION(current_position);\n"
     "   gl_Position = Transform * full_position;\n"
     "}\n";
