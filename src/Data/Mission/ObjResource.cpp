@@ -1273,6 +1273,7 @@ Data::Mission::ObjResource::ObjResource() {
     this->bone_frames = 0;
     this->max_bone_childern = 0;
     this->bone_animation_data = nullptr;
+    this->is_track_auto_generated = false;
 }
 
 Data::Mission::ObjResource::~ObjResource() {
@@ -2221,7 +2222,28 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         
         // This warning tells that there are only two options for animations either morphing or bone animation.
         if( !( !(( bytes_per_frame_3DMI > 0 ) & ( vertex_data.get3DRFSize() > 1 )) ) )
-            warning_log.output << "Both animation systems are used. This might be a problem because normal Future Cop models do not have both bone and morph animations.\n";
+            warning_log.output << "Both animation systems are used. This is be a problem because normal Future Cop models do not have both bone and morph animations. This program will not be able to handle them.\n";
+
+
+        if(this->animation_tracks.empty() && num_frames_4DGI != 1) {
+            AnimationTrack track;
+
+            track.next_track_index = 0;
+            track.type             = 1;
+            track.int8_0           = 0;
+            track.uint8_0          = 0;
+            track.from_index       = 0;
+            track.to_index         = num_frames_4DGI - 1;
+            track.track_0_index    = 0;
+            track.track_1_index    = 0;
+            track.uint16_0         = 0;
+            track.speed            = 32;
+
+            this->animation_tracks.push_back( track );
+            this->is_track_auto_generated = true;
+        }
+        else
+            this->is_track_auto_generated = true;
         
         if( bytes_per_frame_3DMI > 0 )
         {
@@ -2255,7 +2277,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             {
                 error_log.output << "bounding box per frame is " << std::dec << bounding_box_per_frame << "\n";
                 error_log.output << "3DBB frames is " << bounding_box_frames << "\n";
-                error_log.output << "3DBB frames not equal to " << (vertex_data.get3DRFSize() - 1) << "\n";
+                error_log.output << "3DBB frames not equal to " << vertex_data.get3DRFSize() << "\n";
             }
             
             if( num_frames_4DGI != vertex_data.get3DRFSize() )

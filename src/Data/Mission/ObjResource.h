@@ -334,6 +334,7 @@ private:
     std::vector<TextureReference> texture_references;
 
     std::vector<AnimationTrack> animation_tracks;
+    bool is_track_auto_generated; // This condition only happens if and only if the AnmD chunk is present with CObj's with animation data.
     
     /**
      * This gets the bytes per frame rating for the specific opcode.
@@ -365,6 +366,12 @@ public:
     const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
     const std::vector<VertexColorOverride>& getVertexColorOverrides() const { return face_color_overrides; }
     const std::vector<AnimationTrack>& getAnimationTracks() const { return animation_tracks; }
+
+    /**
+     * This is used to determine if the animation track is generated. This would only happen if the AmnD is missing.
+     * @return true if the animation track is auto generated.
+     */
+    const bool isAnimationTrackGenerated() const { return is_track_auto_generated; }
 
     std::vector<FacerPolygon> generateFacingPolygons(unsigned &triangle_amount, unsigned &frame_stride) const;
     bool getBoundingSphereFacingPolygons(const std::vector<FacerPolygon> polygons, glm::vec3 &sphere_position, float &radius) const;
