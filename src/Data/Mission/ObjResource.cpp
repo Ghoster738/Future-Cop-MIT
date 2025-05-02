@@ -2243,7 +2243,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             this->is_track_auto_generated = true;
         }
         else
-            this->is_track_auto_generated = true;
+            this->is_track_auto_generated = false;
         
         if( bytes_per_frame_3DMI > 0 )
         {
