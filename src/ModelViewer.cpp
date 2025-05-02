@@ -310,8 +310,12 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
     if(!this->obj_vector.empty() && !this->obj_vector.at( this->cobj_index )->getAnimationTracks().empty()) {
         text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 0 ) );
-        text_2d_buffer_r->print( "Animation Track "
-            + std::to_string(this->track_index) + "/" + std::to_string(this->obj_vector.at( this->cobj_index )->getAnimationTracks().size()) );
+
+        if(!this->obj_vector.at( this->cobj_index )->isAnimationTrackGenerated())
+            text_2d_buffer_r->print( "Animation Track "
+                + std::to_string(this->track_index) + "/" + std::to_string(this->obj_vector.at( this->cobj_index )->getAnimationTracks().size()) );
+        else
+            text_2d_buffer_r->print( "Animation Track Not Present" );
     }
 
     text_2d_buffer_r->setPosition( glm::vec2( right_text_placement ) );
