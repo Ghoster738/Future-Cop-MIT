@@ -241,6 +241,8 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
             this->cobj_state.reset();
 
+            this->cobj_state.obj_r = this->obj_vector.at( cobj_index );
+
             if( main_program.environment_p->doesModelExist( this->cobj_state.obj_r->getResourceID() ) ) {
                 this->displayed_instance_p = main_program.environment_p->allocateModel( this->cobj_state.obj_r->getResourceID() );
 
