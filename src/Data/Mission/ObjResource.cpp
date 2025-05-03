@@ -1233,7 +1233,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
 }
 
 void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta) {
-    if(this->obj_r == nullptr)
+    if(this->obj_r == nullptr || this->obj_r->animation_tracks.empty())
         return; // Do nothing.
 
     const auto &animation_track = this->obj_r->animation_tracks.at(this->animation_track_index);
@@ -1254,7 +1254,7 @@ void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::micro
 }
 
 uint16_t Data::Mission::ObjResource::AnimationTrackState::getCurrentFrame() const {
-    if(this->obj_r == nullptr)
+    if(this->obj_r == nullptr || this->obj_r->animation_tracks.empty())
         return 0;
 
     const auto &animation_track = this->obj_r->animation_tracks.at(this->animation_track_index);

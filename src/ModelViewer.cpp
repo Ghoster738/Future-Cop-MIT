@@ -67,6 +67,7 @@ void ModelViewer::load( MainProgram &main_program ) {
     this->cobj_index  = 0;
 
     this->animation_track_state.animation_track_index = 0;
+    this->animation_track_state.current_time = std::chrono::microseconds(0);
     this->animation_track_state.obj_r = nullptr;
 
     // Do not load from resource if it does not exist.
@@ -78,16 +79,12 @@ void ModelViewer::load( MainProgram &main_program ) {
         cobj_index = this->obj_vector.size() - 1;
 
     if( main_program.environment_p->doesModelExist( this->obj_vector.at( cobj_index )->getResourceID() ) ) {
-        auto obj_r = this->obj_vector.at( cobj_index );
+        this->animation_track_state.obj_r = this->obj_vector.at( cobj_index );
 
-        this->displayed_instance_p = main_program.environment_p->allocateModel( obj_r->getResourceID() );
+        this->displayed_instance_p = main_program.environment_p->allocateModel( this->animation_track_state.obj_r->getResourceID() );
         this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
         this->displayed_instance_p->setPosition( -this->position );
         this->displayed_instance_p->setVisable(true);
-
-        this->animation_track_state.current_time = std::chrono::microseconds(0);
-        if(!obj_r->getAnimationTracks().empty())
-            this->animation_track_state.obj_r = obj_r;
     }
 }
 
@@ -191,27 +188,24 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         if( input_r->isChanged() && input_r->getState() > 0.5 && this->count_down < 0.0f )
             next_track--;
 
-        if( next_track != 0 && !this->obj_vector.empty() && !this->obj_vector.at( this->cobj_index )->getAnimationTracks().empty() ) {
-
-            auto obj_r = this->obj_vector.at( cobj_index );
-
+        if( next_track != 0 && !this->obj_vector.empty() && !this->animation_track_state.obj_r->getAnimationTracks().empty() ) {
             if( next_track > 0 )
             {
                 this->animation_track_state.animation_track_index += next_track;
 
-                if( this->animation_track_state.animation_track_index >= obj_r->getAnimationTracks().size() )
+                if( this->animation_track_state.animation_track_index >= this->animation_track_state.obj_r->getAnimationTracks().size() )
                     this->animation_track_state.animation_track_index = 0;
             }
             else
             {
                 if( this->animation_track_state.animation_track_index == 0 )
-                    this->animation_track_state.animation_track_index = obj_r->getAnimationTracks().size() - 1;
+                    this->animation_track_state.animation_track_index = this->animation_track_state.obj_r->getAnimationTracks().size() - 1;
                 else
                     this->animation_track_state.animation_track_index += next_track;
             }
 
             this->animation_track_state.current_time = std::chrono::microseconds(0);
-            if(!obj_r->getAnimationTracks().empty())
+            if(!this->animation_track_state.obj_r->getAnimationTracks().empty())
                 this->animation_track_state.animation_track_index = this->animation_track_state.animation_track_index;
         }
 
@@ -247,14 +241,12 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                 delete this->displayed_instance_p;
             this->displayed_instance_p = nullptr;
 
-            auto obj_r = this->obj_vector.at( cobj_index );
-
             this->animation_track_state.animation_track_index = 0;
             this->animation_track_state.current_time = std::chrono::microseconds(0);
-            this->animation_track_state.obj_r = nullptr;
+            this->animation_track_state.obj_r = this->obj_vector.at( cobj_index );
 
-            if( main_program.environment_p->doesModelExist( obj_r->getResourceID() ) ) {
-                this->displayed_instance_p = main_program.environment_p->allocateModel( obj_r->getResourceID() );
+            if( main_program.environment_p->doesModelExist( this->animation_track_state.obj_r->getResourceID() ) ) {
+                this->displayed_instance_p = main_program.environment_p->allocateModel( this->animation_track_state.obj_r->getResourceID() );
 
                 auto log = Utilities::logger.getLog( Utilities::Logger::DEBUG );
 
@@ -266,15 +258,10 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                 this->displayed_instance_p->setPosition( -this->position );
                 this->displayed_instance_p->setVisable( true );
                 main_program.camera_distance = -(this->radius + 4.0f);
-
-                this->animation_track_state.current_time = std::chrono::microseconds(0);
-                if(!obj_r->getAnimationTracks().empty())
-                    this->animation_track_state.obj_r = obj_r;
             }
 
             this->count_down = 0.25f;
             this->rotation = 0;
-            this->animation_track_state.animation_track_index = 0;
         }
     }
 
