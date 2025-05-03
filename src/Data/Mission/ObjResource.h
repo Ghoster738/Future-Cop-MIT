@@ -296,6 +296,8 @@ public:
         size_t                    animation_track_index;
         std::chrono::microseconds current_time;
 
+        void reset();
+
         void advance(std::chrono::microseconds delta);
 
         uint16_t getCurrentFrame() const;

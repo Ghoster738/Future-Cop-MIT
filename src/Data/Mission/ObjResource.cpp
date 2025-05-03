@@ -1232,6 +1232,13 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
     return form.str();
 }
 
+
+void Data::Mission::ObjResource::AnimationTrackState::reset() {
+        this->obj_r                 = nullptr;
+        this->animation_track_index = 0;
+        this->current_time          = std::chrono::microseconds(0);
+}
+
 void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta) {
     if(this->obj_r == nullptr || this->obj_r->animation_tracks.empty())
         return; // Do nothing.

@@ -66,9 +66,7 @@ void ModelViewer::load( MainProgram &main_program ) {
     this->obj_vector = main_program.accessor.getAllConstOBJ();
     this->cobj_index  = 0;
 
-    this->cobj_state.animation_track_index = 0;
-    this->cobj_state.current_time = std::chrono::microseconds(0);
-    this->cobj_state.obj_r = nullptr;
+    this->cobj_state.reset();
 
     // Do not load from resource if it does not exist.
     if( this->obj_vector.empty() )
@@ -241,9 +239,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                 delete this->displayed_instance_p;
             this->displayed_instance_p = nullptr;
 
-            this->cobj_state.animation_track_index = 0;
-            this->cobj_state.current_time = std::chrono::microseconds(0);
-            this->cobj_state.obj_r = this->obj_vector.at( cobj_index );
+            this->cobj_state.reset();
 
             if( main_program.environment_p->doesModelExist( this->cobj_state.obj_r->getResourceID() ) ) {
                 this->displayed_instance_p = main_program.environment_p->allocateModel( this->cobj_state.obj_r->getResourceID() );
