@@ -294,7 +294,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
         if(!this->obj_vector.at( this->cobj_index )->isAnimationTrackGenerated())
             text_2d_buffer_r->print( "Animation Track "
-                + std::to_string(this->cobj_state.animation_track_index) + "/" + std::to_string(this->obj_vector.at( this->cobj_index )->getAnimationTracks().size()) );
+                + std::to_string(this->cobj_state.animation_track_index + 1) + "/" + std::to_string(this->obj_vector.at( this->cobj_index )->getAnimationTracks().size()) );
         else
             text_2d_buffer_r->print( "Animation Track Not Present" );
     }
