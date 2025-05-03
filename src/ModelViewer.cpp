@@ -66,9 +66,9 @@ void ModelViewer::load( MainProgram &main_program ) {
     this->obj_vector = main_program.accessor.getAllConstOBJ();
     this->cobj_index  = 0;
 
-    this->animation_track_state.animation_track_index = 0;
-    this->animation_track_state.current_time = std::chrono::microseconds(0);
-    this->animation_track_state.obj_r = nullptr;
+    this->cobj_state.animation_track_index = 0;
+    this->cobj_state.current_time = std::chrono::microseconds(0);
+    this->cobj_state.obj_r = nullptr;
 
     // Do not load from resource if it does not exist.
     if( this->obj_vector.empty() )
@@ -79,9 +79,9 @@ void ModelViewer::load( MainProgram &main_program ) {
         cobj_index = this->obj_vector.size() - 1;
 
     if( main_program.environment_p->doesModelExist( this->obj_vector.at( cobj_index )->getResourceID() ) ) {
-        this->animation_track_state.obj_r = this->obj_vector.at( cobj_index );
+        this->cobj_state.obj_r = this->obj_vector.at( cobj_index );
 
-        this->displayed_instance_p = main_program.environment_p->allocateModel( this->animation_track_state.obj_r->getResourceID() );
+        this->displayed_instance_p = main_program.environment_p->allocateModel( this->cobj_state.obj_r->getResourceID() );
         this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
         this->displayed_instance_p->setPosition( -this->position );
         this->displayed_instance_p->setVisable(true);
@@ -188,25 +188,25 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         if( input_r->isChanged() && input_r->getState() > 0.5 && this->count_down < 0.0f )
             next_track--;
 
-        if( next_track != 0 && !this->obj_vector.empty() && !this->animation_track_state.obj_r->getAnimationTracks().empty() ) {
+        if( next_track != 0 && !this->obj_vector.empty() && !this->cobj_state.obj_r->getAnimationTracks().empty() ) {
             if( next_track > 0 )
             {
-                this->animation_track_state.animation_track_index += next_track;
+                this->cobj_state.animation_track_index += next_track;
 
-                if( this->animation_track_state.animation_track_index >= this->animation_track_state.obj_r->getAnimationTracks().size() )
-                    this->animation_track_state.animation_track_index = 0;
+                if( this->cobj_state.animation_track_index >= this->cobj_state.obj_r->getAnimationTracks().size() )
+                    this->cobj_state.animation_track_index = 0;
             }
             else
             {
-                if( this->animation_track_state.animation_track_index == 0 )
-                    this->animation_track_state.animation_track_index = this->animation_track_state.obj_r->getAnimationTracks().size() - 1;
+                if( this->cobj_state.animation_track_index == 0 )
+                    this->cobj_state.animation_track_index = this->cobj_state.obj_r->getAnimationTracks().size() - 1;
                 else
-                    this->animation_track_state.animation_track_index += next_track;
+                    this->cobj_state.animation_track_index += next_track;
             }
 
-            this->animation_track_state.current_time = std::chrono::microseconds(0);
-            if(!this->animation_track_state.obj_r->getAnimationTracks().empty())
-                this->animation_track_state.animation_track_index = this->animation_track_state.animation_track_index;
+            this->cobj_state.current_time = std::chrono::microseconds(0);
+            if(!this->cobj_state.obj_r->getAnimationTracks().empty())
+                this->cobj_state.animation_track_index = this->cobj_state.animation_track_index;
         }
 
         int next_cobj = 0;
@@ -241,12 +241,12 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                 delete this->displayed_instance_p;
             this->displayed_instance_p = nullptr;
 
-            this->animation_track_state.animation_track_index = 0;
-            this->animation_track_state.current_time = std::chrono::microseconds(0);
-            this->animation_track_state.obj_r = this->obj_vector.at( cobj_index );
+            this->cobj_state.animation_track_index = 0;
+            this->cobj_state.current_time = std::chrono::microseconds(0);
+            this->cobj_state.obj_r = this->obj_vector.at( cobj_index );
 
-            if( main_program.environment_p->doesModelExist( this->animation_track_state.obj_r->getResourceID() ) ) {
-                this->displayed_instance_p = main_program.environment_p->allocateModel( this->animation_track_state.obj_r->getResourceID() );
+            if( main_program.environment_p->doesModelExist( this->cobj_state.obj_r->getResourceID() ) ) {
+                this->displayed_instance_p = main_program.environment_p->allocateModel( this->cobj_state.obj_r->getResourceID() );
 
                 auto log = Utilities::logger.getLog( Utilities::Logger::DEBUG );
 
@@ -266,9 +266,9 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
     }
 
     if( this->displayed_instance_p != nullptr ) {
-        this->animation_track_state.advance( delta );
+        this->cobj_state.advance( delta );
 
-        this->displayed_instance_p->setPositionTransformTimeline( this->animation_track_state.getCurrentFrame() );
+        this->displayed_instance_p->setPositionTransformTimeline( this->cobj_state.getCurrentFrame() );
         this->displayed_instance_p->setRotation( glm::angleAxis( rotation, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
     }
 
@@ -298,7 +298,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
         if(!this->obj_vector.at( this->cobj_index )->isAnimationTrackGenerated())
             text_2d_buffer_r->print( "Animation Track "
-                + std::to_string(this->animation_track_state.animation_track_index) + "/" + std::to_string(this->obj_vector.at( this->cobj_index )->getAnimationTracks().size()) );
+                + std::to_string(this->cobj_state.animation_track_index) + "/" + std::to_string(this->obj_vector.at( this->cobj_index )->getAnimationTracks().size()) );
         else
             text_2d_buffer_r->print( "Animation Track Not Present" );
     }
