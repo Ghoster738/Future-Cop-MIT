@@ -1233,13 +1233,18 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
 }
 
 void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta) {
-    const auto duration = std::chrono::seconds( 1 + std::abs(static_cast<int>(this->animation_track.to_index) - static_cast<int>(this->animation_track.from_index)) );
+    if(this->obj_r == nullptr)
+        return; // Do nothing.
 
-    if(this->animation_track.from_index == this->animation_track.to_index) {
+    const auto &animation_track = this->obj_r->animation_tracks.at(this->animation_track_index);
+
+    const auto duration = std::chrono::seconds( 1 + std::abs(static_cast<int>(animation_track.to_index) - static_cast<int>(animation_track.from_index)) );
+
+    if(animation_track.from_index == animation_track.to_index) {
         this->current_time = std::chrono::microseconds(0);
     }
     else {
-        std::chrono::duration<double> adjusted_delta(std::chrono::duration_cast<std::chrono::duration<double>>(delta) / (0.00333 * this->animation_track.speed));
+        std::chrono::duration<double> adjusted_delta(std::chrono::duration_cast<std::chrono::duration<double>>(delta) / (0.00333 * animation_track.speed));
 
         this->current_time += std::chrono::duration_cast<std::chrono::microseconds>(adjusted_delta);
 
@@ -1249,16 +1254,21 @@ void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::micro
 }
 
 uint16_t Data::Mission::ObjResource::AnimationTrackState::getCurrentFrame() const {
-    if(this->animation_track.to_index == this->animation_track.from_index)
-        return this->animation_track.to_index;
+    if(this->obj_r == nullptr)
+        return 0;
 
-    const uint16_t duration = std::abs(static_cast<int>(this->animation_track.to_index) - static_cast<int>(this->animation_track.from_index));
+    const auto &animation_track = this->obj_r->animation_tracks.at(this->animation_track_index);
+
+    if(animation_track.to_index == animation_track.from_index)
+        return animation_track.to_index;
+
+    const uint16_t duration = std::abs(static_cast<int>(animation_track.to_index) - static_cast<int>(animation_track.from_index));
     const uint16_t    place = std::chrono::duration_cast<std::chrono::seconds>( this->current_time ).count();
 
-    if(this->animation_track.to_index > this->animation_track.from_index)
-        return this->animation_track.from_index + place;
+    if(animation_track.to_index > animation_track.from_index)
+        return animation_track.from_index + place;
     else
-        return this->animation_track.from_index - place;
+        return animation_track.from_index - place;
 }
         
 const std::filesystem::path Data::Mission::ObjResource::FILE_EXTENSION = "cobj";

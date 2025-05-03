@@ -292,7 +292,8 @@ public:
         std::string getString() const;
     };
     struct AnimationTrackState {
-        AnimationTrack            animation_track;
+        const ObjResource        *obj_r;
+        size_t                    animation_track_index;
         std::chrono::microseconds current_time;
 
         void advance(std::chrono::microseconds delta);
