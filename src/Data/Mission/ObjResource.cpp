@@ -1261,18 +1261,13 @@ void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::micro
 
     const auto duration = std::chrono::seconds( 1 + std::abs(static_cast<int>(animation_track.to_index) - static_cast<int>(animation_track.from_index)) );
 
-    if(animation_track.from_index == animation_track.to_index) {
-        this->current_time = std::chrono::microseconds(0);
-    }
-    else {
-        std::chrono::duration<double> adjusted_delta(std::chrono::duration_cast<std::chrono::duration<double>>(delta) / (speed_factor * animation_track.speed));
+    std::chrono::duration<double> adjusted_delta(std::chrono::duration_cast<std::chrono::duration<double>>(delta) / (speed_factor * animation_track.speed));
 
-        this->current_time += std::chrono::duration_cast<std::chrono::microseconds>(adjusted_delta);
+    this->current_time += std::chrono::duration_cast<std::chrono::microseconds>(adjusted_delta);
 
-        if(this->current_time > duration) {
-            this->current_time = this->current_time % duration;
-            this->on_new_track( *this, animation_track );
-        }
+    if(this->current_time > duration) {
+        this->current_time = this->current_time % duration;
+        this->on_new_track( *this, animation_track );
     }
 }
 
