@@ -1232,6 +1232,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
     return form.str();
 }
 
+const double Data::Mission::ObjResource::AnimationTrackState::STANDARD_SPEED_FACTOR = 0.00333;
 
 void Data::Mission::ObjResource::AnimationTrackState::reset() {
         this->obj_r                 = nullptr;
@@ -1239,7 +1240,7 @@ void Data::Mission::ObjResource::AnimationTrackState::reset() {
         this->current_time          = std::chrono::microseconds(0);
 }
 
-void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta) {
+void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta, double speed_factor) {
     if(this->obj_r == nullptr || this->obj_r->animation_tracks.empty())
         return; // Do nothing.
 
@@ -1251,7 +1252,7 @@ void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::micro
         this->current_time = std::chrono::microseconds(0);
     }
     else {
-        std::chrono::duration<double> adjusted_delta(std::chrono::duration_cast<std::chrono::duration<double>>(delta) / (0.00333 * animation_track.speed));
+        std::chrono::duration<double> adjusted_delta(std::chrono::duration_cast<std::chrono::duration<double>>(delta) / (speed_factor * animation_track.speed));
 
         this->current_time += std::chrono::duration_cast<std::chrono::microseconds>(adjusted_delta);
 

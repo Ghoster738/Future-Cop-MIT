@@ -292,13 +292,15 @@ public:
         std::string getString() const;
     };
     struct AnimationTrackState {
+        const static double STANDARD_SPEED_FACTOR;
+
         const ObjResource        *obj_r;
         size_t                    animation_track_index;
         std::chrono::microseconds current_time;
 
         void reset();
 
-        void advance(std::chrono::microseconds delta);
+        void advance(std::chrono::microseconds delta, double speed_factor = STANDARD_SPEED_FACTOR);
 
         uint16_t getCurrentFrame() const;
     };
