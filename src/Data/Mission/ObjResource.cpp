@@ -1239,7 +1239,11 @@ void Data::Mission::ObjResource::AnimationTrackState::noOpTrackCallback(Animatio
 void Data::Mission::ObjResource::AnimationTrackState::defaultTrackCallback(AnimationTrackState &animation_state, const AnimationTrack &animation_track) {
     assert(animation_state.obj_r != nullptr);
 
-    animation_state.animation_track_index = animation_track.next_track_index;
+    auto animation_tracks_array = animation_state.obj_r->getAnimationTracks();
+
+    // This if statement is to prevent buffer overflows
+    if(animation_tracks_array.size() > animation_track.next_track_index)
+        animation_state.animation_track_index = animation_track.next_track_index;
 }
 
 void Data::Mission::ObjResource::AnimationTrackState::reset() {
