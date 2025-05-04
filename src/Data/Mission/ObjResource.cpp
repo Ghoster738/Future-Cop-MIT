@@ -1234,10 +1234,23 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
 
 const double Data::Mission::ObjResource::AnimationTrackState::STANDARD_SPEED_FACTOR = 0.00333;
 
+namespace {
+
+void onNewTrackDummy(Data::Mission::ObjResource::AnimationTrackState &animation_state, const Data::Mission::ObjResource::AnimationTrack &animation_track) {
+    /*
+    assert(animation_state.obj_r != nullptr);
+
+    animation_state.animation_track_index = animation_track.next_track_index;
+    */
+}
+
+}
+
 void Data::Mission::ObjResource::AnimationTrackState::reset() {
-        this->obj_r                 = nullptr;
-        this->animation_track_index = 0;
-        this->current_time          = std::chrono::microseconds(0);
+    this->obj_r                 = nullptr;
+    this->animation_track_index = 0;
+    this->current_time          = std::chrono::microseconds(0);
+    this->on_new_track          = onNewTrackDummy;
 }
 
 void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta, double speed_factor) {
@@ -1256,8 +1269,10 @@ void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::micro
 
         this->current_time += std::chrono::duration_cast<std::chrono::microseconds>(adjusted_delta);
 
-        if(this->current_time > duration)
+        if(this->current_time > duration) {
             this->current_time = this->current_time % duration;
+            this->on_new_track( *this, animation_track );
+        }
     }
 }
 

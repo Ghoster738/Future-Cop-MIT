@@ -297,6 +297,7 @@ public:
         const ObjResource        *obj_r;
         size_t                    animation_track_index;
         std::chrono::microseconds current_time;
+        void (*on_new_track) (AnimationTrackState &animation_state, const AnimationTrack &animation_track);
 
         void reset();
 
