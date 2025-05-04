@@ -293,6 +293,8 @@ public:
     };
     struct AnimationTrackState {
         const static double STANDARD_SPEED_FACTOR;
+        static void noOpTrackCallback(AnimationTrackState &animation_state, const AnimationTrack &animation_track);
+        static void defaultTrackCallback(AnimationTrackState &animation_state, const AnimationTrack &animation_track);
 
         const ObjResource        *obj_r;
         size_t                    animation_track_index;

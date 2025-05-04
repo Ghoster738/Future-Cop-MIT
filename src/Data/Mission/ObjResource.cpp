@@ -1234,23 +1234,19 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
 
 const double Data::Mission::ObjResource::AnimationTrackState::STANDARD_SPEED_FACTOR = 0.00333;
 
-namespace {
+void Data::Mission::ObjResource::AnimationTrackState::noOpTrackCallback(AnimationTrackState &animation_state, const AnimationTrack &animation_track) {}
 
-void onNewTrackDummy(Data::Mission::ObjResource::AnimationTrackState &animation_state, const Data::Mission::ObjResource::AnimationTrack &animation_track) {
-    /*
+void Data::Mission::ObjResource::AnimationTrackState::defaultTrackCallback(AnimationTrackState &animation_state, const AnimationTrack &animation_track) {
     assert(animation_state.obj_r != nullptr);
 
     animation_state.animation_track_index = animation_track.next_track_index;
-    */
-}
-
 }
 
 void Data::Mission::ObjResource::AnimationTrackState::reset() {
     this->obj_r                 = nullptr;
     this->animation_track_index = 0;
     this->current_time          = std::chrono::microseconds(0);
-    this->on_new_track          = onNewTrackDummy;
+    this->on_new_track          = noOpTrackCallback;
 }
 
 void Data::Mission::ObjResource::AnimationTrackState::advance(std::chrono::microseconds delta, double speed_factor) {
