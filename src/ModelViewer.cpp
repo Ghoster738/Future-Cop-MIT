@@ -302,22 +302,22 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
         auto track = this->obj_vector.at( this->cobj_index )->getAnimationTracks()[ this->cobj_state.animation_track_index ];
 
-        text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 1 * this->font_height ) );
-        text_2d_buffer_r->print( "Next Index = " + std::to_string( track.next_track_index ) );
-        text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 2 * this->font_height ) );
-        text_2d_buffer_r->print( "Type = " + std::to_string( track.type ) );
         text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 3 * this->font_height ) );
-        text_2d_buffer_r->print( "Unknown 1 = " + std::to_string( track.int8_0  ) );
+        text_2d_buffer_r->print( "Next Index: " + std::to_string( track.next_track_index ) );
         text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 4 * this->font_height ) );
-        text_2d_buffer_r->print( "Unknown 2 = " + std::to_string( track.uint8_0 ) );
+        text_2d_buffer_r->print( "Type: " + std::to_string( track.type ) );
         text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 5 * this->font_height ) );
-        text_2d_buffer_r->print( "Animation = " + std::to_string( track.from_index ) + " - " + std::to_string( track.to_index ));
+        text_2d_buffer_r->print( "Unknown 1: " + std::to_string( track.int8_0  ) );
         text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 6 * this->font_height ) );
-        text_2d_buffer_r->print( "Extra Indexes = " + std::to_string( track.track_0_index ) + ", " + std::to_string( track.track_1_index ));
+        text_2d_buffer_r->print( "Unknown 2: " + std::to_string( track.uint8_0 ) );
         text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 7 * this->font_height ) );
-        text_2d_buffer_r->print( "Unknown 3 = " + std::to_string( track.uint16_0 ) );
+        text_2d_buffer_r->print( "Animation: " + std::to_string( track.from_index ) + "-" + std::to_string( track.to_index ));
         text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 8 * this->font_height ) );
-        text_2d_buffer_r->print( "Speed (units) = " + std::to_string( track.speed ) );
+        text_2d_buffer_r->print( "Extra Indexes: " + std::to_string( track.track_0_index ) + ", " + std::to_string( track.track_1_index ));
+        text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 9 * this->font_height ) );
+        text_2d_buffer_r->print( "Unknown 3: " + std::to_string( track.uint16_0 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 10 * this->font_height ) );
+        text_2d_buffer_r->print( "Speed (units): " + std::to_string( track.speed ) );
     }
 
     text_2d_buffer_r->setPosition( glm::vec2( right_text_placement ) );
