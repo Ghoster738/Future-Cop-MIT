@@ -300,6 +300,9 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         else
             text_2d_buffer_r->print( "Animation Track Not Present" );
 
+        text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 1 * this->font_height ) );
+        text_2d_buffer_r->print( "Current Frame: " + std::to_string( this->cobj_state.getCurrentFrame() ) );
+
         auto track = this->obj_vector.at( this->cobj_index )->getAnimationTracks()[ this->cobj_state.animation_track_index ];
 
         text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 3 * this->font_height ) );
